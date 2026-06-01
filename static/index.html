@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Voxa - AI 语音工具包</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2332;
+      --border: #1e293b;
+      --border-hover: #334155;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --green: #22c55e;
+      --purple: #a855f7;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, .4);
+    }
+
+    html {
+      height: 100%
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      height: 100%;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff
+    }
+
+    svg.icon {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0
+    }
+
+    svg.icon-sm {
+      width: 14px;
+      height: 14px
+    }
+
+    svg.icon-lg {
+      width: 22px;
+      height: 22px
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0f1a30 0%, #0a0e1a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 10px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -.3px
+    }
+
+    .logo-badge {
+      background: rgba(59, 130, 246, .1);
+      border: 1px solid rgba(59, 130, 246, .2);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      font-weight: 500
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 4px
+    }
+
+    .hbadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all .15s
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column
+    }
+
+    .file-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden
+    }
+
+    .file-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text2)
+    }
+
+    .file-card-body {
+      padding: 16px 18px
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: rgba(59, 130, 246, .02);
+      margin-bottom: 14px
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, .06)
+    }
+
+    .upload-zone svg {
+      color: var(--text3);
+      margin-bottom: 8px
+    }
+
+    .upload-zone .utitle {
+      color: var(--text2);
+      font-size: 13px;
+      font-weight: 500
+    }
+
+    .upload-zone .uhint {
+      color: var(--text3);
+      font-size: 11px;
+      margin-top: 3px
+    }
+
+    .file-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 12px;
+      background: rgba(0, 0, 0, .2);
+      padding: 3px;
+      border-radius: 6px
+    }
+
+    .file-tab {
+      flex: 1;
+      padding: 6px 12px;
+      text-align: center;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text3);
+      transition: all .15s;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px
+    }
+
+    .file-tab.active {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .file-tab:hover:not(.active) {
+      color: var(--text2)
+    }
+
+    .file-list {
+      max-height: 170px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent
+    }
+
+    .file-list::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .file-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all .12s;
+      font-size: 13px;
+      border: 1px solid transparent
+    }
+
+    .file-item:hover {
+      background: rgba(255, 255, 255, .03);
+      border-color: var(--border)
+    }
+
+    .file-item.selected {
+      background: rgba(59, 130, 246, .08);
+      border-color: rgba(59, 130, 246, .25)
+    }
+
+    .file-item .fname {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500
+    }
+
+    .file-item .fsize {
+      color: var(--text3);
+      font-size: 11px;
+      min-width: 48px;
+      text-align: right
+    }
+
+    .file-item .play-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(59, 130, 246, .1);
+      color: var(--accent);
+      transition: all .15s
+    }
+
+    .file-item .play-btn:hover {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .file-empty {
+      color: var(--text3);
+      font-size: 13px;
+      text-align: center;
+      padding: 18px 0
+    }
+
+    .audio-player {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, .25);
+      border: 1px solid var(--border);
+      border-radius: 8px
+    }
+
+    .audio-player.show {
+      display: flex
+    }
+
+    .audio-player .ap-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      transition: all .15s;
+      flex-shrink: 0
+    }
+
+    .audio-player .ap-btn:hover {
+      box-shadow: 0 0 12px rgba(59, 130, 246, .4)
+    }
+
+    .audio-player .ap-info {
+      font-size: 11px;
+      color: var(--text2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 50px;
+      max-width: 100px;
+      flex-shrink: 0
+    }
+
+    .ap-progress-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0
+    }
+
+    .ap-progress {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      transition: height .12s
+    }
+
+    .ap-progress:hover {
+      height: 6px
+    }
+
+    .ap-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px;
+      width: 0%;
+      position: relative;
+      transition: width .05s linear
+    }
+
+    .ap-progress-fill::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(59, 130, 246, .5);
+      opacity: 0;
+      transition: opacity .15s
+    }
+
+    .ap-progress:hover .ap-progress-fill::after {
+      opacity: 1
+    }
+
+    .ap-time {
+      font-size: 10px;
+      color: var(--text3);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      min-width: 36px;
+      text-align: center
+    }
+
+    .ap-close {
+      cursor: pointer;
+      color: var(--text3);
+      padding: 2px 5px;
+      border-radius: 3px;
+      transition: all .12s;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0
+    }
+
+    .ap-close:hover {
+      color: var(--red);
+      background: rgba(239, 68, 68, .1)
+    }
+
+    .ap-volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0
+    }
+
+    .ap-volume-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text3);
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      transition: all .12s;
+      flex-shrink: 0
+    }
+
+    .ap-volume-btn:hover {
+      color: var(--text2)
+    }
+
+    .ap-vol-track {
+      position: relative;
+      width: 72px;
+      height: 24px;
+      cursor: pointer;
+      flex-shrink: 0
+    }
+
+    .ap-vol-bg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 9px;
+      bottom: 9px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 4px;
+      pointer-events: none;
+      transition: all .12s
+    }
+
+    .ap-vol-track:hover .ap-vol-bg {
+      background: rgba(255, 255, 255, .18)
+    }
+
+    .ap-vol-slider {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      pointer-events: none
+    }
+
+    .ap-vol-fill {
+      position: absolute;
+      left: 0;
+      top: 9px;
+      bottom: 9px;
+      border-radius: 4px;
+      width: 100%;
+      pointer-events: none;
+      transition: width .05s;
+      background: linear-gradient(90deg, var(--accent), #60a5fa)
+    }
+
+    .ap-vol-track:hover .ap-vol-fill {
+      background: linear-gradient(90deg, var(--accent), #93c5fd)
+    }
+
+    .ap-vol-dot {
+      position: absolute;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--accent);
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity .12s;
+      pointer-events: none;
+      box-shadow: 0 0 6px rgba(59, 130, 246, .4);
+      left: 100%
+    }
+
+    .ap-vol-track:hover .ap-vol-dot {
+      opacity: 1
+    }
+
+    .ap-vol-pct {
+      font-size: 9px;
+      color: var(--text3);
+      width: 24px;
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+      user-select: none
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+      align-content: start
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all .2s
+    }
+
+    .card:hover {
+      border-color: var(--border-hover)
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    .card-header .ctitle {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1
+    }
+
+    .card-header .cbadge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px
+    }
+
+    .cbadge-tts {
+      background: rgba(168, 85, 247, .12);
+      color: var(--purple)
+    }
+
+    .cbadge-audio {
+      background: rgba(34, 197, 94, .12);
+      color: var(--green)
+    }
+
+    .cbadge-asr {
+      background: rgba(59, 130, 246, .12);
+      color: var(--accent)
+    }
+
+    .card-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 14px;
+      background: rgba(0, 0, 0, .2);
+      padding: 2px;
+      border-radius: 6px
+    }
+
+    .card-tab {
+      flex: 1;
+      padding: 6px 10px;
+      text-align: center;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text3);
+      transition: all .15s;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px
+    }
+
+    .card-tab.active {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .card-tab:hover:not(.active) {
+      color: var(--text2)
+    }
+
+    .tab-content {
+      display: none
+    }
+
+    .tab-content.active {
+      display: block
+    }
+
+    .field {
+      margin-bottom: 10px
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 3px;
+      font-weight: 600;
+      letter-spacing: .02em
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, .1)
+    }
+
+    /* Custom Select */
+    .custom-select {
+      position: relative;
+      user-select: none
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .15s;
+      gap: 8px
+    }
+
+    .custom-select-trigger:hover {
+      border-color: var(--border-hover)
+    }
+
+    .custom-select.open .custom-select-trigger {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, .1)
+    }
+
+    .custom-select-arrow {
+      transition: transform .2s;
+      color: var(--text3)
+    }
+
+    .custom-select.open .custom-select-arrow {
+      transform: rotate(180deg)
+    }
+
+    .custom-select-options {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: all .15s;
+      box-shadow: var(--shadow)
+    }
+
+    .custom-select.open .custom-select-options {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0)
+    }
+
+    .custom-select-option {
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all .1s
+    }
+
+    .custom-select-option:hover {
+      background: rgba(59, 130, 246, .1);
+      color: var(--text)
+    }
+
+    .custom-select-option.selected {
+      color: var(--accent);
+      font-weight: 600;
+      background: rgba(59, 130, 246, .06)
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 48px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent
+    }
+
+    .field textarea::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .field textarea::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .input-group {
+      display: flex;
+      gap: 5px
+    }
+
+    .input-group input {
+      flex: 1
+    }
+
+    .input-group .pick-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all .12s;
+      background: rgba(59, 130, 246, .1);
+      color: var(--accent)
+    }
+
+    .input-group .pick-btn:hover {
+      background: rgba(59, 130, 246, .2)
+    }
+
+    .btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px
+    }
+
+    .btn:active {
+      transform: scale(.97)
+    }
+
+    .btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #2563eb
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: #fff
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #16a34a
+    }
+
+    .btn-warning {
+      background: var(--orange);
+      color: #fff
+    }
+
+    .btn-warning:hover:not(:disabled) {
+      background: #d97706
+    }
+
+    .btn-purple {
+      background: var(--purple);
+      color: #fff
+    }
+
+    .btn-purple:hover:not(:disabled) {
+      background: #7c3aed
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px
+    }
+
+    .btn-group .btn {
+      flex: 1
+    }
+
+    .result {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, .25);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent
+    }
+
+    .result::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .result::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px
+    }
+
+    .result.success {
+      border-color: rgba(34, 197, 94, .35);
+      display: block
+    }
+
+    .result.error {
+      border-color: rgba(239, 68, 68, .35);
+      display: block
+    }
+
+    .result .rlabel {
+      color: var(--text3);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 3px
+    }
+
+    .status-bar {
+      padding: 12px 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .sdot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: var(--text2)
+    }
+
+    .status-sep {
+      color: var(--border);
+      font-size: 14px
+    }
+
+    .status-time {
+      color: var(--text3);
+      font-size: 11px
+    }
+
+    .status-right {
+      display: flex;
+      gap: 4px
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 9999;
+      transition: opacity .3s;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .5);
+      pointer-events: none
+    }
+
+    @media(max-width:768px) {
+      .cards {
+        grid-template-columns: 1fr
+      }
+
+      .field-row,
+      .btn-group {
+        grid-template-columns: 1fr
+      }
+
+      .header-badges {
+        display: none
+      }
+
+      .container {
+        padding: 12px
+      }
+
+      .file-card-body {
+        padding: 12px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="logo-text">Voxa</span>
+        <span class="logo-badge">AI 语音工具包</span>
+      </div>
+      <div class="header-badges">
+        <span class="hbadge" style="color:var(--purple)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg> TTS</span>
+        <span class="hbadge" style="color:var(--green)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg> Audio</span>
+        <span class="hbadge" style="color:var(--accent)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg> ASR</span>
+        <span class="hbadge" style="color:var(--orange)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 1 0 0 20M2 12h20" />
+            <circle cx="12" cy="12" r="4" />
+          </svg> Translate</span>
+        <span class="hbadge" style="color:var(--red)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+            <line x1="7" y1="2" x2="7" y2="22" />
+            <line x1="17" y1="2" x2="17" y2="22" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <line x1="2" y1="7" x2="7" y2="7" />
+            <line x1="2" y1="17" x2="7" y2="17" />
+            <line x1="17" y1="7" x2="22" y2="7" />
+            <line x1="17" y1="17" x2="22" y2="17" />
+          </svg> Video</span>
+        <span class="hbadge" style="color:var(--red)"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+            <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+          </svg> YouTube</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- File Manager -->
+    <div class="file-card">
+      <div class="file-card-header">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        文件管理
+      </div>
+      <div class="file-card-body">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <svg class="icon icon-lg" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <div class="utitle">点击上传或拖拽文件到这里</div>
+          <div class="uhint">支持 WAV · MP3 · FLAC · OGG · M4A · MP4 · AVI · MOV · MKV</div>
+        </div>
+        <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none"
+          onchange="handleFileSelect(event)">
+
+        <div class="file-tabs">
+          <button class="file-tab active" onclick="switchFileTab('uploaded',this)">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg> 已上传
+          </button>
+          <button class="file-tab" onclick="switchFileTab('output',this)">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <polyline points="16 16 12 12 8 16" />
+              <line x1="12" y1="12" x2="12" y2="21" />
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+              <polyline points="16 16 12 12 8 16" />
+            </svg> 输出文件
+          </button>
+        </div>
+
+        <div id="fileList" class="file-list">
+          <div class="file-empty">
+            <svg class="icon" style="display:block;margin:0 auto 6px;color:var(--text3)" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            暂无文件
+          </div>
+        </div>
+
+        <div id="audioPlayer" class="audio-player">
+          <button class="ap-btn" id="playBtn" onclick="togglePlayPause()">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+          </button>
+          <span class="ap-info" id="playerInfo">未选择</span>
+          <div class="ap-progress-wrap">
+            <span class="ap-time" id="timeCurrent">0:00</span>
+            <div class="ap-progress" id="progressBar" onclick="seekAudio(event)">
+              <div class="ap-progress-fill" id="progressFill"></div>
+            </div>
+            <span class="ap-time" id="timeTotal">0:00</span>
+          </div>
+          <div class="ap-volume-wrap">
+            <button class="ap-volume-btn" id="volumeBtn" onclick="toggleMute()">
+              <svg class="icon icon-sm" viewBox="0 0 24 24">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+            </button>
+            <div class="ap-vol-track" id="volumeBar" onclick="setVolume(event)" onmousedown="startVolDrag(event)">
+              <div class="ap-vol-bg"></div>
+              <div class="ap-vol-fill" id="volumeFill" style="width:100%"></div>
+              <div class="ap-vol-dot" id="volumeDot"></div>
+            </div>
+            <span class="ap-vol-pct" id="volumePct">100%</span>
+          </div>
+          <audio id="playerAudio" style="display:none" onended="onAudioEnded()" ontimeupdate="onTimeUpdate()"
+            onloadedmetadata="onLoaded()"></audio>
+          <button class="ap-close" onclick="closePlayer()">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="cards">
+
+      <!-- TTS -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+          <span class="ctitle">语音克隆</span>
+          <span class="cbadge cbadge-tts">TTS</span>
+        </div>
+        <div class="card-tabs">
+          <button class="card-tab active" onclick="switchTab('clone','basic',this)">简单</button>
+          <button class="card-tab" onclick="switchTab('clone','full',this)">完整参数</button>
+        </div>
+        <div id="clone-basic" class="tab-content active">
+          <div class="field"><label>合成文本</label><textarea id="clone-text" placeholder="输入文本...">你好，这是一次测试</textarea>
+          </div>
+          <div class="field"><label>参考音频路径</label>
+            <div class="input-group"><input id="clone-ref" value=""><button class="pick-btn"
+                onclick="pickFromFiles('clone-ref')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <button class="btn btn-purple" onclick="cloneVoiceSimple()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg> 生成语音</button>
+          <div id="clone-result" class="result"></div>
+        </div>
+        <div id="clone-full" class="tab-content">
+          <div class="field"><label>合成文本</label><textarea id="clone-text-full">你好，这是一次测试</textarea></div>
+          <div class="field"><label>参考音频路径</label>
+            <div class="input-group"><input id="clone-ref-full" value=""><button class="pick-btn"
+                onclick="pickFromFiles('clone-ref-full')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>CFG 系数</label><input id="clone-cfg" type="number" value="2.0" step="0.5" min="0.5"
+                max="10"></div>
+            <div class="field"><label>推理步数</label><input id="clone-steps" type="number" value="10" min="1" max="50">
+            </div>
+          </div>
+          <button class="btn btn-purple" onclick="cloneVoiceFull()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg> 生成语音</button>
+          <div id="clone-full-result" class="result"></div>
+        </div>
+      </div>
+
+      <!-- Vocal Separation -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--green)" viewBox="0 0 24 24">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg>
+          <span class="ctitle">人声分离</span>
+          <span class="cbadge cbadge-audio">UVR5</span>
+        </div>
+        <div class="card-tabs">
+          <button class="card-tab active" onclick="switchTab('vocal','separate',this)">全部分离</button>
+          <button class="card-tab" onclick="switchTab('vocal','extract',this)">单独提取</button>
+        </div>
+        <div id="vocal-separate" class="tab-content active">
+          <div class="field"><label>输入音频路径</label>
+            <div class="input-group"><input id="vocal-input" value=""><button class="pick-btn"
+                onclick="pickFromFiles('vocal-input')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <button class="btn btn-success" onclick="separateVocals()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg> 全部分离</button>
+          <div id="vocal-result" class="result"></div>
+        </div>
+        <div id="vocal-extract" class="tab-content">
+          <div class="field"><label>输入音频路径</label>
+            <div class="input-group"><input id="vocal-extract-input" value=""><button class="pick-btn"
+                onclick="pickFromFiles('vocal-extract-input')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-success" onclick="extractVocal('vocals')"><svg class="icon icon-sm"
+                viewBox="0 0 24 24">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg> 人声</button>
+            <button class="btn btn-warning" onclick="extractVocal('accompaniment')"><svg class="icon icon-sm"
+                viewBox="0 0 24 24">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+              </svg> 伴奏</button>
+          </div>
+          <div id="vocal-extract-result" class="result"></div>
+        </div>
+      </div>
+
+      <!-- ASR -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--accent)" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+          <span class="ctitle">语音识别</span>
+          <span class="cbadge cbadge-asr">Whisper</span>
+        </div>
+        <div class="field"><label>输入音频路径</label>
+          <div class="input-group"><input id="asr-input" value=""><button class="pick-btn"
+              onclick="pickFromFiles('asr-input')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg> 选择</button></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>语言 <span style="color:var(--text3);font-weight:400">(选填)</span></label><input
+              id="asr-lang" placeholder="zh, en, ja..."></div>
+          <div class="field"><label>任务</label>
+            <div class="custom-select" id="asr-task-cs">
+              <div class="custom-select-trigger" onclick="toggleCustomSelect('asr-task-cs')">
+                <span class="custom-select-label">转录</span>
+                <svg class="icon icon-sm custom-select-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="custom-select-options">
+                <div class="custom-select-option selected" data-value="transcribe" onclick="selectCustomOption('asr-task-cs','transcribe','转录',this)">转录</div>
+                <div class="custom-select-option" data-value="translate" onclick="selectCustomOption('asr-task-cs','translate','翻译',this)">翻译</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="transcribeAudio()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg> 开始识别</button>
+        <div id="asr-result" class="result"></div>
+      </div>
+
+      <!-- Translate -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--orange)" viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 1 0 0 20M2 12h20" />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+          <span class="ctitle">文本翻译</span>
+          <span class="cbadge" style="background:rgba(245,158,11,.12);color:var(--orange)">Translate</span>
+        </div>
+        <div class="field"><label>待翻译文本</label><textarea id="translate-text"
+            placeholder="输入需要翻译的文本...">Hello, nice to meet you!</textarea></div>
+        <div class="field-row">
+          <div class="field"><label>源语言</label>
+            <select id="translate-source">
+              <option value="auto">自动检测</option>
+              <option value="zh">中文</option>
+              <option value="en">英文</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="it">意大利语</option>
+            </select>
+          </div>
+          <div class="field"><label>目标语言</label>
+            <select id="translate-target">
+              <option value="zh" selected>中文</option>
+              <option value="en">英文</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="it">意大利语</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-warning" onclick="translateText()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 1 0 0 20M2 12h20" />
+            <circle cx="12" cy="12" r="4" />
+          </svg> 开始翻译</button>
+        <div id="translate-result" class="result"></div>
+      </div>
+
+      <!-- Video Translate -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--red)" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+            <line x1="7" y1="2" x2="7" y2="22" />
+            <line x1="17" y1="2" x2="17" y2="22" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <line x1="2" y1="7" x2="7" y2="7" />
+            <line x1="2" y1="17" x2="7" y2="17" />
+            <line x1="17" y1="7" x2="22" y2="7" />
+            <line x1="17" y1="17" x2="22" y2="17" />
+          </svg>
+          <span class="ctitle">视频翻译</span>
+          <span class="cbadge" style="background:rgba(239,68,68,.12);color:var(--red)">Pipeline</span>
+        </div>
+        <div class="card-tabs">
+          <button class="card-tab active" onclick="switchTab('vt','async',this)">异步</button>
+          <button class="card-tab" onclick="switchTab('vt','sync',this)">同步</button>
+        </div>
+        <div id="vt-async" class="tab-content active">
+          <div class="field"><label>输入视频路径</label>
+            <div class="input-group"><input id="vt-input" value=""><button class="pick-btn"
+                onclick="pickFromFiles('vt-input')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>目标语言</label>
+              <select id="vt-lang">
+                <option value="zh" selected>中文</option>
+                <option value="en">英文</option>
+                <option value="ja">日语</option>
+                <option value="ko">韩语</option>
+              </select>
+            </div>
+            <div class="field"><label>源语言 <span style="color:var(--text3);font-weight:400">(选填)</span></label><input
+                id="vt-source-lang" placeholder="auto"></div>
+          </div>
+          <button class="btn" style="background:var(--red);color:#fff" onclick="videoTranslateAsync()"><svg
+              class="icon icon-sm" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg> 开始翻译 (异步)</button>
+          <div id="vt-async-result" class="result"></div>
+        </div>
+        <div id="vt-sync" class="tab-content">
+          <div class="field"><label>输入视频路径</label>
+            <div class="input-group"><input id="vt-input-sync" value=""><button class="pick-btn"
+                onclick="pickFromFiles('vt-input-sync')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>目标语言</label>
+              <select id="vt-lang-sync">
+                <option value="zh" selected>中文</option>
+                <option value="en">英文</option>
+                <option value="ja">日语</option>
+                <option value="ko">韩语</option>
+              </select>
+            </div>
+            <div class="field"><label>源语言 <span style="color:var(--text3);font-weight:400">(选填)</span></label><input
+                id="vt-source-lang-sync" placeholder="auto"></div>
+          </div>
+          <div class="field"><label>参考人声 <span style="color:var(--text3);font-weight:400">(选填)</span></label>
+            <div class="input-group"><input id="vt-ref-sync" placeholder="留空使用原视频人声"><button class="pick-btn"
+                onclick="pickFromFiles('vt-ref-sync')"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg> 选择</button></div>
+          </div>
+          <button class="btn" style="background:var(--red);color:#fff" onclick="videoTranslateSync()"><svg
+              class="icon icon-sm" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg> 开始翻译 (同步)</button>
+          <div id="vt-sync-result" class="result"></div>
+        </div>
+      </div>
+
+      <!-- YouTube Downloader -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" style="color:var(--red)" viewBox="0 0 24 24">
+            <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+            <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+          </svg>
+          <span class="ctitle">YouTube 下载</span>
+          <span class="cbadge" style="background:rgba(239,68,68,.12);color:var(--red)">yt-dlp</span>
+        </div>
+        <div class="card-tabs">
+          <button class="card-tab active" onclick="switchTab('yt','download',this)">下载视频</button>
+          <button class="card-tab" onclick="switchTab('yt','info',this)">获取信息</button>
+        </div>
+        <div id="yt-download" class="tab-content active">
+          <div class="field"><label>YouTube URL</label>
+            <input id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div class="btn-group">
+            <button class="btn" style="background:var(--red);color:#fff" onclick="youtubeDownload()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+                <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+              </svg> 下载</button>
+            <button class="btn btn-primary" onclick="youtubeInfo()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg> 获取信息</button>
+          </div>
+          <div id="yt-result" class="result"></div>
+        </div>
+        <div id="yt-info" class="tab-content">
+          <div class="field"><label>YouTube URL</label>
+            <input id="yt-url-info" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <button class="btn btn-primary" onclick="youtubeInfoOnly()"><svg class="icon icon-sm" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg> 获取信息</button>
+          <div id="yt-info-result" class="result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Status -->
+  <div class="status-bar">
+    <div class="status-left">
+      <span class="sdot"></span>
+      <span class="status-text">服务运行中</span>
+      <span class="status-sep">|</span>
+      <span class="status-time" id="serverTime"></span>
+    </div>
+    <div class="status-right">
+      <span class="cbadge cbadge-tts">TTS</span>
+      <span class="cbadge cbadge-audio">Audio</span>
+      <span class="cbadge cbadge-asr">ASR</span>
+      <span class="cbadge" style="background:rgba(245,158,11,.12);color:var(--orange)">Translate</span>
+      <span class="cbadge" style="background:rgba(239,68,68,.12);color:var(--red)">Video</span>
+      <span class="cbadge" style="background:rgba(239,68,68,.12);color:var(--red)">YouTube</span>
+    </div>
+  </div>
+
+  <script>
+    function $(id) { return document.getElementById(id) }
+    let _fileTab = 'uploaded', _selPath = null;
+
+    function switchTab(g, t, b) {
+      document.querySelectorAll('[id^="' + g + '-"]').forEach(e => e.classList.toggle('active', e.id === g + '-' + t));
+      b.closest('.card-tabs').querySelectorAll('.card-tab').forEach(t => t.classList.remove('active'));
+      b.classList.add('active');
+    }
+    function switchFileTab(t, b) {
+      _fileTab = t; document.querySelectorAll('.file-tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); refreshFileList();
+    }
+
+    function syntaxHighlight(j) {
+      return j.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>')
+        .replace(/"([^"]+)":/g, '<span style="color:#60a5fa">"$1"</span>:')
+        .replace(/"([^"]+)"(?=\s*[,}\]])/g, '<span style="color:#a78bfa">"$1"</span>')
+        .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#f59e0b">$1</span>')
+        .replace(/\b(true|false|null)\b/g, '<span style="color:#ef4444">$1</span>');
+    }
+    function showResult(el, d, err) {
+      el.className = 'result ' + (err ? 'error' : 'success');
+      if (typeof d === 'string') el.textContent = err ? '✗ ' + d : d;
+      else el.innerHTML = '<div class="rlabel">' + (err ? '✗ 错误' : '✓ 成功') + '</div>' + syntaxHighlight(JSON.stringify(d, null, 2));
+    }
+    async function apiPost(url, b) { const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); const d = await r.json(); if (!r.ok) throw new Error(d.detail || JSON.stringify(d)); return d }
+    async function apiPostForm(url, p) {
+      const qs = Object.entries(p).filter(([_, v]) => v != null && v !== '').map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+      const r = await fetch(url + '?' + qs, { method: 'POST' }); const d = await r.json(); if (!r.ok) throw new Error(d.detail || JSON.stringify(d)); return d
+    }
+    function fmtSize(b) { if (b < 1024) return b + 'B'; if (b < 1048576) return (b / 1024).toFixed(1) + 'KB'; return (b / 1048576).toFixed(1) + 'MB' }
+    function updTime() { const d = new Date(); $('serverTime').textContent = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN') }
+    updTime(); setInterval(updTime, 1e3);
+
+    const uz = $('uploadZone');
+    uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dragover') });
+    uz.addEventListener('dragleave', () => uz.classList.remove('dragover'));
+    uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('dragover'); if (e.dataTransfer.files.length) doUpload(e.dataTransfer.files[0]) });
+    function handleFileSelect(e) { if (e.target.files.length) doUpload(e.target.files[0]); e.target.value = '' }
+    async function doUpload(f) {
+      const fd = new FormData(); fd.append('file', f);
+      try { const r = await fetch('/api/v1/upload/upload', { method: 'POST', body: fd }); const d = await r.json(); if (!r.ok) throw new Error(d.detail || '上传失败'); refreshFileList(); showToast('✓ ' + d.filename + ' 上传成功') }
+      catch (e) { showToast('✗ ' + e.message) }
+    }
+    async function refreshFileList() {
+      const el = $('fileList');
+      try {
+        const ep = _fileTab === 'uploaded' ? '/api/v1/upload/files' : '/api/v1/upload/out-files';
+        const r = await fetch(ep); const d = await r.json();
+        if (!d.files || !d.files.length) { el.innerHTML = '<div class="file-empty"><svg class="icon" style="display:block;margin:0 auto 6px;color:var(--text3)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>暂无文件</div>'; return }
+        el.innerHTML = d.files.map(f => {
+          const u = f.web_url || '';
+          return '<div class="file-item" onclick="selectFile(\'' + f.path.replace(/\\/g, '/') + '\',\'' + u + '\',this)"><span><svg class="icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="fname">' + f.name + '</span><span class="fsize">' + fmtSize(f.size) + '</span><button class="play-btn" onclick="event.stopPropagation();playFile(\'' + u + '\',\'' + f.name + '\')" title="播放"><svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button></div>';
+        }).join('');
+      } catch (e) { el.innerHTML = '<div class="file-empty" style="color:var(--red)">加载失败</div>' }
+    }
+    function selectFile(p, u, el) {
+      _selPath = p; document.querySelectorAll('.file-item').forEach(i => i.classList.remove('selected')); el.classList.add('selected');
+      const a = document.activeElement; if (a && a.tagName === 'INPUT') { a.value = p; showToast('✓ ' + a.id + ' 已填入') } else showToast('已选择: ' + p);
+    }
+    function pickFromFiles(id) { if (_selPath) { $(id).value = _selPath; showToast('✓ 已填入') } else showToast('请先点击文件列表中的文件') }
+    function fmtTime(s) { if (!s || !isFinite(s)) return '0:00'; const m = Math.floor(s / 60), sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec }
+    function playFile(u, n) { const p = $('audioPlayer'), a = $('playerAudio'); p.classList.add('show'); $('playBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'; a.src = u; a.play(); $('playerInfo').textContent = n }
+    function togglePlayPause() { const a = $('playerAudio'), b = $('playBtn'); if (a.paused) { a.play(); b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' } else { a.pause(); b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>' } }
+    function closePlayer() { const p = $('audioPlayer'), a = $('playerAudio'); a.pause(); a.src = ''; $('playBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>'; $('progressFill').style.width = '0%'; $('timeCurrent').textContent = '0:00'; $('timeTotal').textContent = '0:00'; p.classList.remove('show') }
+    function onAudioEnded() { const b = $('playBtn'); b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>'; $('playerInfo').textContent = '播放完成' }
+    function onTimeUpdate() { const a = $('playerAudio'); if (a.duration) { $('progressFill').style.width = (a.currentTime / a.duration * 100) + '%'; $('timeCurrent').textContent = fmtTime(a.currentTime) } }
+    function onLoaded() { const a = $('playerAudio'); $('timeTotal').textContent = fmtTime(a.duration) }
+    function seekAudio(e) { const a = $('playerAudio'), p = $('progressBar'); if (a.duration) { const r = p.getBoundingClientRect(); a.currentTime = ((e.clientX - r.left) / r.width) * a.duration } }
+    let _volDragging = false;
+    function _updateVolUI(vol) {
+      const pct = Math.round(vol * 100);
+      $('volumeFill').style.width = pct + '%';
+      $('volumeDot').style.left = pct + '%';
+      $('volumePct').textContent = pct + '%';
+      if (pct === 0) $('volumeBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+      else $('volumeBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+    }
+    function setVolume(e) {
+      const a = $('playerAudio'), volEl = $('volumeBar');
+      const r = volEl.getBoundingClientRect();
+      const vol = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      a.volume = vol; a.muted = false;
+      _updateVolUI(vol);
+    }
+    function startVolDrag(e) { _volDragging = true; setVolume(e) }
+    function stopVolDrag() { _volDragging = false }
+    function onVolMove(e) { if (_volDragging) { setVolume(e); e.preventDefault() } }
+    function toggleMute() {
+      const a = $('playerAudio'); a.muted = !a.muted;
+      if (a.muted) { $('volumeBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>' }
+      else _updateVolUI(a.volume);
+    }
+    _updateVolUI(1);
+    function showToast(m) { let t = $('_toast'); if (!t) { t = document.createElement('div'); t.id = '_toast'; t.className = 'toast'; document.body.appendChild(t) } t.textContent = m; t.style.opacity = '1'; clearTimeout(t._timer); t._timer = setTimeout(() => t.style.opacity = '0', 2500) }
+
+    // Custom Select
+    function toggleCustomSelect(csId) {
+      const cs = document.getElementById(csId);
+      if (!cs) return;
+      const wasOpen = cs.classList.contains('open');
+      closeAllCustomSelects();
+      if (!wasOpen) cs.classList.add('open');
+    }
+    function selectCustomOption(csId, val, label, el) {
+      const cs = document.getElementById(csId);
+      cs.value = val;
+      cs.querySelector('.custom-select-label').textContent = label;
+      cs.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      closeAllCustomSelects();
+    }
+    function closeAllCustomSelects() {
+      document.querySelectorAll('.custom-select.open').forEach(cs => cs.classList.remove('open'));
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.custom-select')) closeAllCustomSelects();
+    });
+    document.addEventListener('mousemove', onVolMove);
+    document.addEventListener('mouseup', stopVolDrag);
+    refreshFileList();
+
+    async function cloneVoiceSimple() {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 生成中...';
+      try { const d = await apiPostForm('/api/v1/tts/clone-simple', { text: $('clone-text').value, reference_wav_path: $('clone-ref').value, output_path: 'data/out/tts/web_output.wav' }); showResult($('clone-result'), d); refreshFileList(); showToast('✓ 语音生成成功') }
+      catch (e) { showResult($('clone-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> 生成语音' }
+    }
+    async function cloneVoiceFull() {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 生成中...';
+      try { const d = await apiPost('/api/v1/tts/clone', { text: $('clone-text-full').value, reference_wav_path: $('clone-ref-full').value, cfg_value: parseFloat($('clone-cfg').value), inference_timesteps: parseInt($('clone-steps').value) }); showResult($('clone-full-result'), d); refreshFileList(); showToast('✓ 语音生成成功') }
+      catch (e) { showResult($('clone-full-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> 生成语音' }
+    }
+    async function separateVocals() {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 分离中...';
+      try { const d = await apiPostForm('/api/v1/audio/separate', { audio_path: $('vocal-input').value }); showResult($('vocal-result'), d); refreshFileList(); showToast('✓ 分离完成') }
+      catch (e) { showResult($('vocal-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> 全部分离' }
+    }
+    async function extractVocal(t) {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 提取中...';
+      const ep = t === 'vocals' ? '/api/v1/audio/vocals' : '/api/v1/audio/accompaniment';
+      try { const d = await apiPostForm(ep, { audio_path: $('vocal-extract-input').value }); showResult($('vocal-extract-result'), d); refreshFileList(); showToast('✓ 提取完成') }
+      catch (e) { showResult($('vocal-extract-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = t === 'vocals' ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> 人声' : '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> 伴奏' }
+    }
+    async function transcribeAudio() {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 识别中...';
+      try { const d = await apiPost('/api/v1/asr/transcribe', { audio_path: $('asr-input').value, language: $('asr-lang').value || null, task: $('asr-task-cs').value }); showResult($('asr-result'), d); showToast('✓ 识别完成') }
+      catch (e) { showResult($('asr-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 开始识别' }
+    }
+    async function translateText() {
+      const b = event.target; b.disabled = true; b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 翻译中...';
+      try {
+        const d = await apiPost('/api/v1/translate/translate', {
+          text: $('translate-text').value,
+          source: $('translate-source').value,
+          target: $('translate-target').value,
+        });
+        showResult($('translate-result'), d);
+        showToast('✓ 翻译完成');
+      } catch (e) { showResult($('translate-result'), e.message, true) }
+      finally { b.disabled = false; b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20M2 12h20"/><circle cx="12" cy="12" r="4"/></svg> 开始翻译' }
+    }
+
+    // Video Translate
+    let _vtTaskId = null;
+    let _vtPollTimer = null;
+
+    async function videoTranslateAsync() {
+      const b = event.target; b.disabled = true;
+      b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 提交中...';
+      const el = $('vt-async-result');
+      try {
+        const d = await apiPost('/api/v1/video/video-translate', {
+          video_path: $('vt-input').value,
+          target_lang: $('vt-lang').value,
+          source_lang: $('vt-source-lang').value || null,
+        });
+        _vtTaskId = d.task_id;
+        showResult(el, { status: '已提交', task_id: d.task_id, message: '后台执行中...' });
+        showToast('✓ 任务已提交，开始轮询进度');
+        _pollVideoProgress(d.task_id, el);
+      } catch (e) {
+        showResult(el, e.message, true);
+      } finally {
+        b.disabled = false;
+        b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> 开始翻译 (异步)';
+      }
+    }
+
+    async function _pollVideoProgress(taskId, resultEl) {
+      if (_vtPollTimer) clearInterval(_vtPollTimer);
+      _vtPollTimer = setInterval(async () => {
+        try {
+          const r = await fetch('/api/v1/video/video-translate/progress/' + taskId);
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.detail || '查询失败');
+
+          if (d.status === 'completed') {
+            clearInterval(_vtPollTimer);
+            _vtPollTimer = null;
+            showResult(resultEl, d);
+            showToast('✓ 视频翻译完成！');
+            if (d.output_video) {
+              resultEl.innerHTML += '<div style="margin-top:8px"><a href="' + d.output_video + '" target="_blank" style="color:var(--accent)">📺 下载视频</a></div>';
+            }
+            refreshFileList();
+          } else if (d.status === 'failed') {
+            clearInterval(_vtPollTimer);
+            _vtPollTimer = null;
+            showResult(resultEl, d.message || '任务失败', true);
+          } else {
+            const pct = Math.round((d.progress || 0) * 100);
+            const msg = d.message || '处理中...';
+            resultEl.className = 'result success';
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = '<div class="rlabel">⏳ 处理中 ' + pct + '%</div>'
+              + '<div style="margin-bottom:6px"><div style="background:rgba(255,255,255,.08);height:6px;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px;transition:width .3s"></div></div></div>'
+              + '<div style="color:var(--text2);font-size:11px">' + msg + '</div>';
+          }
+        } catch (e) {
+          // ignore poll errors
+        }
+      }, 2000);
+    }
+
+    // ── YouTube Downloader ────────────────────────────────────
+
+    async function youtubeDownload() {
+      const b = event.target; b.disabled = true;
+      b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 下载中...';
+      const el = $('yt-result');
+      try {
+        const d = await apiPost('/api/v1/youtube/download', { url: $('yt-url').value });
+        showResult(el, d);
+        showToast('✓ 下载完成: ' + d.title);
+        refreshFileList();
+      } catch (e) {
+        showResult(el, e.message, true);
+      } finally {
+        b.disabled = false;
+        b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg> 下载';
+      }
+    }
+
+    async function youtubeInfo() {
+      const b = event.target; b.disabled = true;
+      b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 获取中...';
+      const el = $('yt-result');
+      try {
+        const d = await apiPost('/api/v1/youtube/info', { url: $('yt-url').value });
+        showResult(el, d);
+      } catch (e) {
+        showResult(el, e.message, true);
+      } finally {
+        b.disabled = false;
+        b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> 获取信息';
+      }
+    }
+
+    async function youtubeInfoOnly() {
+      const b = event.target; b.disabled = true;
+      b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 获取中...';
+      const el = $('yt-info-result');
+      try {
+        const d = await apiPost('/api/v1/youtube/info', { url: $('yt-url-info').value });
+        showResult(el, d);
+      } catch (e) {
+        showResult(el, e.message, true);
+      } finally {
+        b.disabled = false;
+        b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> 获取信息';
+      }
+    }
+
+    async function videoTranslateSync() {
+      const b = event.target; b.disabled = true;
+      b.innerHTML = '<svg class="icon icon-sm" style="animation:spin .6s linear infinite" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="31.4 31.4"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur=".6s" repeatCount="indefinite"/></circle></svg> 翻译中... (可能会很久)';
+      const el = $('vt-sync-result');
+      try {
+        el.className = 'result success';
+        el.style.display = 'block';
+        el.innerHTML = '<div class="rlabel">⏳ 视频处理中...</div><div style="color:var(--text2);font-size:11px">这将同步等待处理完成，请耐心等待</div>';
+
+        const d = await apiPost('/api/v1/video/video-translate/sync', {
+          video_path: $('vt-input-sync').value,
+          target_lang: $('vt-lang-sync').value,
+          source_lang: $('vt-source-lang-sync').value || null,
+          reference_wav: $('vt-ref-sync').value || null,
+        });
+        showResult(el, d);
+        showToast('✓ 视频翻译完成！');
+        if (d.output_video) {
+          el.innerHTML += '<div style="margin-top:8px"><a href="' + d.output_video + '" target="_blank" style="color:var(--accent)">📺 下载视频</a></div>';
+        }
+        refreshFileList();
+      } catch (e) {
+        showResult(el, e.message, true);
+      } finally {
+        b.disabled = false;
+        b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> 开始翻译 (同步)';
+      }
+    }
+  </script>
+</body>
+
+</html>

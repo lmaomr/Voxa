@@ -1,0 +1,59 @@
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+# ── 虚拟环境 ──────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── IDE / 编辑器 ───────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── 数据文件（上传、输出、缓存） ──────────────────
+data/uploads/*
+data/out/*
+data/videos/*
+data/thumbnails/*
+data/subtitles/*
+data/cookies/*
+data/downloads/*
+data/server.log
+!data/cookies/.gitkeep
+!data/uploads/.gitkeep
+
+# ── AI 模型文件（体积巨大，不应提交） ──────────
+models/faster-whisper-large-v3/
+models/uvr5/
+models/VoxCPM2/
+models/.msc
+
+# ── 日志 ──────────────────────────────────────────
+logs/
+*.log
+
+# ── 数据库 ────────────────────────────────────────
+*.db
+*.sqlite3
+
+# ── 环境变量 ──────────────────────────────────────
+.env
+.env.local
+
+# ── 临时文件 ─────────────────────────────────────
+*.tmp
+*.temp
+*.wav
+*.mp3
+*.mp4
