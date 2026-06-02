@@ -25,7 +25,7 @@ Voxa 是一个基于 FastAPI 的全栈 AI 语音工具包。
 
 ### 快速开始
 
-`ash python -m venv .venv .venv\Scripts\activate pip install -e . uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload `
+`python -m venv .venv .venv\Scripts\activate pip install -e . uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload `
 
 ### API 端点
 
