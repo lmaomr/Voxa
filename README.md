@@ -42,7 +42,7 @@ Voxa 是一个基于 FastAPI 的全栈 AI 语音工具包。
 
 ### 项目结构
 
-`Voxa/ ├── app/ │   ├── main.py              # FastAPI 入口 │   ├── api/v1/endpoints/    # API 端点（8个模块） │   ├── services/            # AI 服务层（6个服务） │   ├── core/                # 配置 + 安全 │   ├── models/              # SQLAlchemy 数据模型 │   ├── schemas/             # Pydantic 数据模式 │   └── crud/                # 数据库操作 ├── static/index.html        # Web UI ├── models/                  # AI 模型文件 ├── data/                    # 上传文件 + 输出 └── tests/                   # 测试`
+`Voxa/ ├── app/ │   ├── main.py              # FastAPI 入口 │   ├── api/v1/endpoints/    # API 端点（8个模块） │   ├── services/            # AI 服务层（6个服务） │   ├── core/           ├── static/index.html        # Web UI ├── models/                  # AI 模型文件 ├── data/                    # 上传文件 + 输出 └── tests/                   # 测试`
 
 ### 许可证
 
