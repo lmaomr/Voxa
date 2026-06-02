@@ -69,7 +69,7 @@ Voxa is a full-stack AI voice toolkit built on FastAPI.
 
 ### Quick Start
 
-`ash python -m venv .venv source .venv/bin/activate pip install -e . uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload `
+`bash python -m venv .venv source .venv/bin/activate pip install -e . uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload `
 
 ### API Endpoints
 
